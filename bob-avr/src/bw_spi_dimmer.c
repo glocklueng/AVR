@@ -38,7 +38,9 @@
 
 #ifdef __AVR_ARCH__
 #define udelay _delay_us
+#define FUNC_PREFIX(x) avr_##x
 #else
+#define FUNC_PREFIX(x) bcm2835_##x
 #ifndef BARE_METAL
 #define udelay bcm2835_delayMicroseconds
 #endif
@@ -61,7 +63,7 @@ uint8_t bw_spi_dimmer_start(device_info_t *device_info) {
 	if (bcm2835_init() != 1)
 		return 1;
 #endif
-	bcm2835_spi_begin();
+	FUNC_PREFIX(spi_begin());
 
 	if (device_info->slave_address <= 0)
 		device_info->slave_address = BW_DIMMER_DEFAULT_SLAVE_ADDRESS;
@@ -75,11 +77,11 @@ void bw_spi_dimmer_output(const device_info_t *device_info, const uint8_t value)
 	cmd[1] = BW_PORT_WRITE_DIMMER;
 	cmd[2] = value;
 	dimmer_spi_setup(device_info);
-	bcm2835_spi_writenb(cmd, sizeof(cmd) / sizeof(char));
+	FUNC_PREFIX(spi_writenb(cmd, sizeof(cmd) / sizeof(char)));
 	udelay(BW_DIMMER_SPI_BYTE_WAIT_US);
 }
 
 void bw_spi_dimmer_end(void) {
-	bcm2835_spi_end();
+	FUNC_PREFIX(spi_end());
 }
 
