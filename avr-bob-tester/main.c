@@ -8,7 +8,6 @@ int main(void)
 	device_info_t device_info;
 
 	device_info.slave_address = BW_LCD_DEFAULT_SLAVE_ADDRESS;
-	device_info.chip_select = 0;
 
 	bw_spi_lcd_start(&device_info);
 
@@ -16,7 +15,7 @@ int main(void)
 
 	bw_spi_lcd_cls(&device_info);
 
-	bw_spi_lcd_text_line_1(&device_info, "AVR_Atmel", 9);
+	bw_spi_lcd_text_line_1(&device_info, "AVR Atmel", 9);
 	bw_spi_lcd_text_line_2(&device_info, "Arduino Uno", 11);
 
 	device_info.slave_address = BW_DIO_DEFAULT_SLAVE_ADDRESS;

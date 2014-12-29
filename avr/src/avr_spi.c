@@ -1,5 +1,5 @@
 /**
- * @file bw_spi_dimmer.h
+ * @file avr_spi.c
  *
  */
 /* Copyright (C) 2014 by Arjan van Vught <pm @ http://www.raspberrypi.org/forum/>
@@ -23,18 +23,42 @@
  * THE SOFTWARE.
  */
 
-#ifndef BW_SPI_DIMMER_H_
-#define BW_SPI_DIMMER_H_
+#include <avr/io.h>
+#include <util/delay.h>
+#include <string.h>
+#include "spi.h"
+#include "avr_spi.h"
 
-#include <stdint.h>
+/**
+ *
+ */
+void avr_spi_begin(void)
+{
+	DDRB |= (1 << SPI_MOSI_PIN); 	// output
+	DDRB &= ~(1 << SPI_MISO_PIN);	// input
+	DDRB |= (1 << SPI_SCK_PIN);		// output
+	DDRB |= (1 << SPI_SS_PIN);		// output
 
-#include <device_info.h>
-#include <bw_dimmer.h>
+	PORTB |= (1 << SPI_SS_PIN);
 
-#define BW_DIMMER_SPI_BYTE_WAIT_US		0
+	SPCR = _BV(SPE) | _BV(MSTR) | _BV(SPR1) | _BV(SPR0);
+}
 
-extern uint8_t bw_spi_dimmer_start(device_info_t *);
-extern void bw_spi_dimmer_end(void);
-extern void bw_spi_dimmer_output(const device_info_t *, const uint8_t);
+/**
+ *
+ * @param s
+ * @param len
+ */
+void avr_spi_writenb(const char *s, uint8_t len)
+{
+	PORTB &= ~(1 << SPI_SS_PIN);
 
-#endif /* BW_SPI_DIMMER_H_ */
+	while (len--)
+	{
+		SPDR = *s++;
+		while (!(SPSR & _BV(SPIF)))
+			;
+		_delay_us(10);
+	}
+	PORTB |= (1 << SPI_SS_PIN);
+}
