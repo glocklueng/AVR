@@ -1,5 +1,5 @@
 /**
- * @file avr_spi.c
+ * @file uart.h
  *
  */
 /* Copyright (C) 2014 by Arjan van Vught <pm @ http://www.raspberrypi.org/forum/>
@@ -23,44 +23,18 @@
  * THE SOFTWARE.
  */
 
-#include <avr/io.h>
-#include <util/delay.h>
-#include <string.h>
-#include "spi.h"
-#include "avr_spi.h"
+#ifndef UART_H_
+#define UART_H_
 
-/**
- * @ingroup SPI
- *
- */
-void avr_spi_begin(void)
-{
-	DDRB |= (1 << SPI_MOSI_PIN); 	// output
-	DDRB &= ~(1 << SPI_MISO_PIN);	// input
-	DDRB |= (1 << SPI_SCK_PIN);		// output
-	DDRB |= (1 << SPI_SS_PIN);		// output
+#include <stdio.h>
+#include "avr_uart.h"
 
-	PORTB |= (1 << SPI_SS_PIN);
+extern int uart_putchar(char c, FILE *stream);
+extern int uart_getchar(FILE *stream);
 
-	SPCR = _BV(SPE) | _BV(MSTR) | _BV(SPR1) | _BV(SPR0);
-}
+FILE uart_output = FDEV_SETUP_STREAM(uart_putchar, NULL, _FDEV_SETUP_WRITE);
+FILE uart_input = FDEV_SETUP_STREAM(NULL, uart_getchar, _FDEV_SETUP_READ);
 
-/**
- * @ingroup SPI
- *
- * @param s
- * @param len
- */
-void avr_spi_writenb(const char *s, uint8_t len)
-{
-	PORTB &= ~(1 << SPI_SS_PIN);
+#define UART_BEGIN() {avr_uart_begin();stdout = &uart_output;stdin = &uart_input;}
 
-	while (len--)
-	{
-		SPDR = *s++;
-		while (!(SPSR & _BV(SPIF)))
-			;
-		_delay_us(10); //TODO
-	}
-	PORTB |= (1 << SPI_SS_PIN);
-}
+#endif /* UART_H_ */

@@ -1,5 +1,5 @@
 /**
- * @file avr_spi.c
+ * @file uart.c
  *
  */
 /* Copyright (C) 2014 by Arjan van Vught <pm @ http://www.raspberrypi.org/forum/>
@@ -23,44 +23,33 @@
  * THE SOFTWARE.
  */
 
+#include <stdio.h>
 #include <avr/io.h>
-#include <util/delay.h>
-#include <string.h>
-#include "spi.h"
-#include "avr_spi.h"
 
 /**
- * @ingroup SPI
+ * @ingroup UART
  *
+ * @param c
+ * @param stream
+ * @return
  */
-void avr_spi_begin(void)
-{
-	DDRB |= (1 << SPI_MOSI_PIN); 	// output
-	DDRB &= ~(1 << SPI_MISO_PIN);	// input
-	DDRB |= (1 << SPI_SCK_PIN);		// output
-	DDRB |= (1 << SPI_SS_PIN);		// output
+int uart_putchar(char c, FILE *stream) {
+    if (c == '\n') {
+        uart_putchar('\r', stream);
+    }
+    loop_until_bit_is_set(UCSR0A, UDRE0);
+    UDR0 = c;
 
-	PORTB |= (1 << SPI_SS_PIN);
-
-	SPCR = _BV(SPE) | _BV(MSTR) | _BV(SPR1) | _BV(SPR0);
+    return 0;
 }
 
 /**
- * @ingroup SPI
+ * @ingroup UART
  *
- * @param s
- * @param len
+ * @param stream
+ * @return
  */
-void avr_spi_writenb(const char *s, uint8_t len)
-{
-	PORTB &= ~(1 << SPI_SS_PIN);
-
-	while (len--)
-	{
-		SPDR = *s++;
-		while (!(SPSR & _BV(SPIF)))
-			;
-		_delay_us(10); //TODO
-	}
-	PORTB |= (1 << SPI_SS_PIN);
+int uart_getchar(FILE *stream) {
+    loop_until_bit_is_set(UCSR0A, RXC0);
+    return UDR0;
 }

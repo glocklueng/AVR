@@ -1,5 +1,5 @@
 /**
- * @file avr_spi.c
+ * @file avr_uart.c
  *
  */
 /* Copyright (C) 2014 by Arjan van Vught <pm @ http://www.raspberrypi.org/forum/>
@@ -22,45 +22,49 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
 #include <avr/io.h>
-#include <util/delay.h>
-#include <string.h>
-#include "spi.h"
-#include "avr_spi.h"
+
+#undef BAUD
+#define BAUD 38400
+#include <util/setbaud.h>
 
 /**
- * @ingroup SPI
+ * @ingroup UART
  *
  */
-void avr_spi_begin(void)
+void avr_uart_begin(void)
 {
-	DDRB |= (1 << SPI_MOSI_PIN); 	// output
-	DDRB &= ~(1 << SPI_MISO_PIN);	// input
-	DDRB |= (1 << SPI_SCK_PIN);		// output
-	DDRB |= (1 << SPI_SS_PIN);		// output
+	UBRR0H = UBRRH_VALUE;
+	UBRR0L = UBRRL_VALUE;
 
-	PORTB |= (1 << SPI_SS_PIN);
+#if USE_2X
+	UCSR0A |= _BV(U2X0);
+#else
+	UCSR0A &= ~(_BV(U2X0));
+#endif
 
-	SPCR = _BV(SPE) | _BV(MSTR) | _BV(SPR1) | _BV(SPR0);
+	UCSR0C = _BV(UCSZ01) | _BV(UCSZ00); /* 8-bit data */
+	UCSR0B = _BV(RXEN0) | _BV(TXEN0); /* Enable RX and TX */
 }
 
 /**
- * @ingroup SPI
+ * @ingroup UART
  *
- * @param s
- * @param len
+ * @param c
  */
-void avr_spi_writenb(const char *s, uint8_t len)
+void avr_uart_send(const uint8_t c)
 {
-	PORTB &= ~(1 << SPI_SS_PIN);
+	loop_until_bit_is_set(UCSR0A, UDRE0);
+	UDR0 = c;
+}
 
-	while (len--)
-	{
-		SPDR = *s++;
-		while (!(SPSR & _BV(SPIF)))
-			;
-		_delay_us(10); //TODO
-	}
-	PORTB |= (1 << SPI_SS_PIN);
+/**
+ * @ingroup UART
+ *
+ * @return
+ */
+uint8_t avr_uart_recieve(void)
+{
+	loop_until_bit_is_set(UCSR0A, RXC0);
+	return UDR0 ;
 }

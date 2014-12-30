@@ -1,5 +1,5 @@
 /**
- * @file avr_spi.c
+ * @file avr_uart.h
  *
  */
 /* Copyright (C) 2014 by Arjan van Vught <pm @ http://www.raspberrypi.org/forum/>
@@ -23,44 +23,13 @@
  * THE SOFTWARE.
  */
 
-#include <avr/io.h>
-#include <util/delay.h>
-#include <string.h>
-#include "spi.h"
-#include "avr_spi.h"
+#ifndef AVR_UART_H_
+#define AVR_UART_H_
 
-/**
- * @ingroup SPI
- *
- */
-void avr_spi_begin(void)
-{
-	DDRB |= (1 << SPI_MOSI_PIN); 	// output
-	DDRB &= ~(1 << SPI_MISO_PIN);	// input
-	DDRB |= (1 << SPI_SCK_PIN);		// output
-	DDRB |= (1 << SPI_SS_PIN);		// output
+#include <stdint.h>
 
-	PORTB |= (1 << SPI_SS_PIN);
+extern void avr_uart_begin(void);
+extern void avr_uart_send(const uint8_t);
+extern uint8_t avr_uart_recieve(void);
 
-	SPCR = _BV(SPE) | _BV(MSTR) | _BV(SPR1) | _BV(SPR0);
-}
-
-/**
- * @ingroup SPI
- *
- * @param s
- * @param len
- */
-void avr_spi_writenb(const char *s, uint8_t len)
-{
-	PORTB &= ~(1 << SPI_SS_PIN);
-
-	while (len--)
-	{
-		SPDR = *s++;
-		while (!(SPSR & _BV(SPIF)))
-			;
-		_delay_us(10); //TODO
-	}
-	PORTB |= (1 << SPI_SS_PIN);
-}
+#endif /* AVR_UART_H_ */
