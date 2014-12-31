@@ -23,6 +23,7 @@
  * THE SOFTWARE.
  */
 
+#include <stdlib.h>
 #include <avr/interrupt.h>
 #include <util/twi.h>
 #include "i2c.h"
@@ -70,10 +71,18 @@ void avr_i2c_setSlaveAddress(const uint8_t addr)
  */
 uint8_t avr_i2c_write(const char *buf, uint8_t len)
 {
-	i2c_start(slave_address | I2C_WRITE);
-	while(len--) {
-		i2c_write(*buf++);
+	uint8_t rc;
+	rc = i2c_start(slave_address | I2C_WRITE);
+	if (rc)
+		return rc;
+
+	while (len--)
+	{
+		rc = i2c_write(*buf++);
+		if (rc)
+			return rc;
 	}
+
 	i2c_stop();
 
 	return 0;
@@ -88,7 +97,11 @@ uint8_t avr_i2c_write(const char *buf, uint8_t len)
  */
 uint8_t avr_i2c_read(char *buf, uint8_t len)
 {
-	i2c_start(slave_address | I2C_READ);
+	uint8_t rc;
+	rc = i2c_start(slave_address | I2C_READ);
+	if (rc)
+		return rc;
+
 	while(len--) {
 		*buf = i2c_read_ack();
 		buf++;
