@@ -1,5 +1,5 @@
 /**
- * @file uart_getchar.c
+ * @file uart.c
  *
  */
 /* Copyright (C) 2014 by Arjan van Vught <pm @ http://www.raspberrypi.org/forum/>
