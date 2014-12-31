@@ -1,5 +1,5 @@
 /**
- * @file avr_i2c.h
+ * @file bw_i2c.c
  *
  */
 /* Copyright (C) 2014 by Arjan van Vught <pm @ http://www.raspberrypi.org/forum/>
@@ -23,26 +23,34 @@
  * THE SOFTWARE.
  */
 
-#ifndef AVR_I2C_H_
-#define AVR_I2C_H_
-
-#include <stdint.h>
-
-// create alias for the different I2C chip pins - code assumes all on port C
-#if (defined(__AVR_AT90USB82__) || defined(__AVR_AT90USB162__))
-#elif (defined(__AVR_ATmega48__) || defined(_AVR_ATmega88__) || defined(__AVR_ATmega168__) || defined(__AVR_ATmega328__) || defined(__AVR_ATmega328P__))
- #define SCL_PORT    PORTC
- #define SCL_BIT     PORTC5
- #define SDA_PORT    PORTC
- #define SDA_BIT     PORTC4
+#ifdef __AVR_ARCH__
+#include <avr_i2c.h>
 #else
- #error unknown processor - add to avr_i2c.h
+#include <bcm2835.h>
+#ifdef BARE_METAL
+#include <bcm2835_i2c.h>
 #endif
+#endif
+#include <device_info.h>
+#include <bw.h>
 
-extern void avr_i2c_begin(void);
-extern void avr_i2c_end(void);
-extern void avr_i2c_setSlaveAddress(const uint8_t);
-extern uint8_t avr_i2c_write(const char *, uint8_t);
-extern uint8_t avr_i2c_read(char*, const uint8_t);
+extern int printf(const char *format, ...);
 
-#endif /* AVR_I2C_H_ */
+/**
+ * @ingroup I2C
+ *
+ * @param device_info
+ */
+void bw_i2c_read_id(const device_info_t *device_info) {
+	char cmd[] = { BW_PORT_READ_ID_STRING };
+	char buf[BW_ID_STRING_LENGTH];
+#ifdef __AVR_ARCH__
+	FUNC_PREFIX(i2c_setSlaveAddress(device_info->slave_address));
+#else
+	FUNC_PREFIX(i2c_setSlaveAddress(device_info->slave_address >> 1));
+	bcm2835_i2c_setClockDivider(BCM2835_I2C_CLOCK_DIVIDER_2500);
+#endif
+	FUNC_PREFIX(i2c_write(cmd, sizeof(cmd) / sizeof(char)));
+	FUNC_PREFIX(i2c_read(buf, BW_ID_STRING_LENGTH));
+	printf("[%s]\n", buf);
+}

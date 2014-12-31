@@ -1,5 +1,5 @@
 /**
- * @file avr_i2c.h
+ * @file uart_putchar.c
  *
  */
 /* Copyright (C) 2014 by Arjan van Vught <pm @ http://www.raspberrypi.org/forum/>
@@ -23,26 +23,22 @@
  * THE SOFTWARE.
  */
 
-#ifndef AVR_I2C_H_
-#define AVR_I2C_H_
+#include <stdio.h>
+#include <avr/io.h>
 
-#include <stdint.h>
+/**
+ * @ingroup UART
+ *
+ * @param c
+ * @param stream
+ * @return
+ */
+int uart_putchar(char c, FILE *stream) {
+    if (c == '\n') {
+        uart_putchar('\r', stream);
+    }
+    loop_until_bit_is_set(UCSR0A, UDRE0);
+    UDR0 = c;
 
-// create alias for the different I2C chip pins - code assumes all on port C
-#if (defined(__AVR_AT90USB82__) || defined(__AVR_AT90USB162__))
-#elif (defined(__AVR_ATmega48__) || defined(_AVR_ATmega88__) || defined(__AVR_ATmega168__) || defined(__AVR_ATmega328__) || defined(__AVR_ATmega328P__))
- #define SCL_PORT    PORTC
- #define SCL_BIT     PORTC5
- #define SDA_PORT    PORTC
- #define SDA_BIT     PORTC4
-#else
- #error unknown processor - add to avr_i2c.h
-#endif
-
-extern void avr_i2c_begin(void);
-extern void avr_i2c_end(void);
-extern void avr_i2c_setSlaveAddress(const uint8_t);
-extern uint8_t avr_i2c_write(const char *, uint8_t);
-extern uint8_t avr_i2c_read(char*, const uint8_t);
-
-#endif /* AVR_I2C_H_ */
+    return 0;
+}

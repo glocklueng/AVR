@@ -1,5 +1,5 @@
 /**
- * @file avr_i2c.h
+ * @file avr_i2c.c
  *
  */
 /* Copyright (C) 2014 by Arjan van Vught <pm @ http://www.raspberrypi.org/forum/>
@@ -23,26 +23,79 @@
  * THE SOFTWARE.
  */
 
-#ifndef AVR_I2C_H_
-#define AVR_I2C_H_
+#include <avr/interrupt.h>
+#include <util/twi.h>
+#include "i2c.h"
+#include "avr_i2c.h"
 
-#include <stdint.h>
+#define F_SCL		100000UL		///<< SCL frequency, 100kHz
+#define PRESCALER	1
 
-// create alias for the different I2C chip pins - code assumes all on port C
-#if (defined(__AVR_AT90USB82__) || defined(__AVR_AT90USB162__))
-#elif (defined(__AVR_ATmega48__) || defined(_AVR_ATmega88__) || defined(__AVR_ATmega168__) || defined(__AVR_ATmega328__) || defined(__AVR_ATmega328P__))
- #define SCL_PORT    PORTC
- #define SCL_BIT     PORTC5
- #define SDA_PORT    PORTC
- #define SDA_BIT     PORTC4
-#else
- #error unknown processor - add to avr_i2c.h
-#endif
+static unsigned char slave_address;
 
-extern void avr_i2c_begin(void);
-extern void avr_i2c_end(void);
-extern void avr_i2c_setSlaveAddress(const uint8_t);
-extern uint8_t avr_i2c_write(const char *, uint8_t);
-extern uint8_t avr_i2c_read(char*, const uint8_t);
+/**
+ * @ingroup I2C
+ *
+ */
+void avr_i2c_begin(void)
+{
+	i2c_init();
+	SCL_PORT |= _BV(SCL_BIT);   // enable pull up on TWI clock line
+	SDA_PORT |= _BV(SDA_BIT);   // enable pull up on TWI data line
+}
 
-#endif /* AVR_I2C_H_ */
+
+/**
+ * @ingroup I2C
+ *
+ */
+void avr_i2c_end(void)
+{
+
+}
+
+/**
+ * @ingroup I2C
+ *
+ * @param addr
+ */
+void avr_i2c_setSlaveAddress(const uint8_t addr)
+{
+	slave_address = addr;
+}
+
+/**
+ * @ingroup I2C
+ *
+ * @param buf
+ * @param len
+ * @return
+ */
+uint8_t avr_i2c_write(const char *buf, uint8_t len)
+{
+	i2c_start(slave_address | I2C_WRITE);
+	while(len--) {
+		i2c_write(*buf++);
+	}
+	i2c_stop();
+
+	return 0;
+}
+
+/**
+ * @ingroup I2C
+ *
+ * @param buf
+ * @param len
+ * @return
+ */
+uint8_t avr_i2c_read(char *buf, uint8_t len)
+{
+	i2c_start(slave_address | I2C_READ);
+	while(len--) {
+		*buf = i2c_read_ack();
+		buf++;
+	}
+	i2c_stop();
+	return 0;
+}

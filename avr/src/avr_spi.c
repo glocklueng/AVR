@@ -64,3 +64,26 @@ void avr_spi_writenb(const char *s, uint8_t len)
 	}
 	PORTB |= (1 << SPI_SS_PIN);
 }
+
+/**
+ * @ingroup SPI
+ *
+ * @param s
+ * @param len
+ */
+void avr_spi_transfern(char *s, uint8_t len)
+{
+	PORTB &= ~(1 << SPI_SS_PIN);
+
+	while (len--)
+	{
+		SPDR = *s;
+		while (!(SPSR & _BV(SPIF)))
+			;
+		*s = SPDR;
+		_delay_us(10); //TODO
+		s++;
+	}
+
+	PORTB |= (1 << SPI_SS_PIN);
+}

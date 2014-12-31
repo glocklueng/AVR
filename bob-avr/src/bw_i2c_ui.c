@@ -42,9 +42,10 @@ static char i2c_ui_slave_address = BW_UI_DEFAULT_SLAVE_ADDRESS;
  *
  */
 inline static void ui_i2c_setup(void) {
-	FUNC_PREFIX(i2c_setSlaveAddress(i2c_ui_slave_address >> 1));
 #ifdef __AVR_ARCH__
+	FUNC_PREFIX(i2c_setSlaveAddress(i2c_ui_slave_address ));
 #else
+	FUNC_PREFIX(i2c_setSlaveAddress(i2c_ui_slave_address >> 1));
 	bcm2835_i2c_setClockDivider(BCM2835_I2C_CLOCK_DIVIDER_2500);
 #endif
 }
