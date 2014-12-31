@@ -24,20 +24,22 @@
  */
 
 #include <util/delay.h>
-#include <uart.h>
-#include <bw_spi_lcd.h>
-#include <bw_i2c.h>
-#include <bw_i2c_dio.h>
-#include <bw_i2c_lcd.h>
+#include "uart.h"
+#include "bw_spi_lcd.h"
+#include "bw_i2c.h"
+#include "bw_i2c_dio.h"
+#include "bw_i2c_lcd.h"
+#include "mcp7941x.h"
 
 int main(void)
 {
 	device_info_t device_info;
 
-	device_info.slave_address = BW_LCD_DEFAULT_SLAVE_ADDRESS;
-
 	UART_BEGIN();
 
+	device_info.slave_address = BW_LCD_DEFAULT_SLAVE_ADDRESS;
+
+	/** SPI **/
 	printf("bw_spi_lcd_start\n");
 	bw_spi_lcd_start(&device_info);
 
@@ -81,6 +83,14 @@ int main(void)
 	printf("bw_i2c_lcd_text_line_1\n");
 	bw_i2c_lcd_text_line_1("AVR Atmel", 9);
 
+	/** RTC **/
+	struct rtc_time tm_rtc;
+	printf("mcp7941x_start\n");
+	mcp7941x_start(0x00);
+	printf("mcp7941x_get_date_time\n");
+	mcp7941x_get_date_time(&tm_rtc);
+	printf("%.2d:%.2d:%.2d %.2d-%.2d-%.2d\n", tm_rtc.tm_hour, tm_rtc.tm_min, tm_rtc.tm_sec, tm_rtc.tm_mday, tm_rtc.tm_mon, tm_rtc.tm_year);
+
 	device_info.slave_address = BW_DIO_DEFAULT_SLAVE_ADDRESS;
 
 	printf("bw_i2c_dio_start\n");
@@ -92,13 +102,18 @@ int main(void)
 	printf("bw_i2c_dio_fsel_mask\n");
 	bw_i2c_dio_fsel_mask(&device_info, 0x7F);
 
+	char buf[9];
 	while (1)
 	{
-		printf("bw_i2c_dio_output(&device_info, BW_DIO_PIN_IO0 | BW_DIO_PIN_IO2 | BW_DIO_PIN_IO4 | BW_DIO_PIN_IO6)\n");
+		mcp7941x_get_date_time(&tm_rtc);
+		sprintf(buf, "%.2d:%.2d:%.2d", tm_rtc.tm_hour, tm_rtc.tm_min, tm_rtc.tm_sec);
+		bw_i2c_lcd_text_line_2(buf, 8);
+
+		device_info.slave_address = BW_DIO_DEFAULT_SLAVE_ADDRESS;
 		bw_i2c_dio_output(&device_info, BW_DIO_PIN_IO0 | BW_DIO_PIN_IO2 | BW_DIO_PIN_IO4 | BW_DIO_PIN_IO6);
-		_delay_ms(1000);
-		printf("bw_i2c_dio_output(&device_info, BW_DIO_PIN_IO1 | BW_DIO_PIN_IO3 | BW_DIO_PIN_IO5)\n");
+		_delay_ms(500);
+
 		bw_i2c_dio_output(&device_info, BW_DIO_PIN_IO1 | BW_DIO_PIN_IO3 | BW_DIO_PIN_IO5);
-		_delay_ms(1000);
+		_delay_ms(500);
 	}
 }
