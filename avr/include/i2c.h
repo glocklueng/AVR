@@ -1,5 +1,5 @@
 /**
- * @file uart.h
+ * @file i2c.h
  *
  */
 /* Copyright (C) 2014 by Arjan van Vught <pm @ http://www.raspberrypi.org/forum/>

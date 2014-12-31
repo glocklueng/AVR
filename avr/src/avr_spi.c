@@ -47,6 +47,14 @@ void avr_spi_begin(void)
 /**
  * @ingroup SPI
  *
+ */
+void avr_spi_end(void) {
+
+}
+
+/**
+ * @ingroup SPI
+ *
  * @param s
  * @param len
  */
