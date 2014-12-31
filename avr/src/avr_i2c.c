@@ -28,10 +28,7 @@
 #include "i2c.h"
 #include "avr_i2c.h"
 
-#define F_SCL		100000UL		///<< SCL frequency, 100kHz
-#define PRESCALER	1
-
-static unsigned char slave_address;
+static unsigned char slave_address;		///<
 
 /**
  * @ingroup I2C

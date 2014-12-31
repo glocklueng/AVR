@@ -26,7 +26,6 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <string.h>
-#include "spi.h"
 #include "avr_spi.h"
 
 /**
