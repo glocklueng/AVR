@@ -47,15 +47,15 @@ int main(void)
 	printf("bw_spi_lcd_reinit\n");
 	bw_spi_lcd_reinit(&device_info);
 
-//	uint8_t backlight;
-//	printf("bw_spi_lcd_get_backlight := ");
-//	bw_spi_lcd_get_backlight(&backlight);
-//	printf("%d\n", backlight);
-//
-//	uint8_t contrast;
-//	printf("bw_spi_lcd_get_contrast := ");
-//	bw_spi_lcd_get_contrast(&contrast);
-//	printf("%d\n", contrast);
+	uint8_t backlight;
+	printf("bw_spi_lcd_get_backlight := ");
+	bw_spi_lcd_get_backlight(&device_info, &backlight);
+	printf("%d\n", backlight);
+
+	uint8_t contrast;
+	printf("bw_spi_lcd_get_contrast := ");
+	bw_spi_lcd_get_contrast(&device_info,&contrast);
+	printf("%d\n", contrast);
 
 	printf("bw_spi_lcd_cls\n");
 	bw_spi_lcd_cls(&device_info);
