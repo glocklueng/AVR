@@ -159,6 +159,7 @@ void avr_i2c_begin(void)
 /**
  * @ingroup I2C
  *
+ * Disable I2C
  */
 void avr_i2c_end(void)
 {

@@ -30,6 +30,7 @@
 /**
  * @ingroup SPI
  *
+ * Enables the SPI pins and set the clock divider.
  */
 void avr_spi_begin(void)
 {
@@ -46,9 +47,10 @@ void avr_spi_begin(void)
 /**
  * @ingroup SPI
  *
+ * Disable the SPI pins.
  */
 void avr_spi_end(void) {
-
+	SPCR = 0;
 }
 
 /**
