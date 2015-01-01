@@ -29,7 +29,7 @@
 
 /**
  * @ingroup SPI
- *
+ * Start SPI operations.
  * Enables the SPI pins and set the clock divider.
  */
 void avr_spi_begin(void)
@@ -39,7 +39,7 @@ void avr_spi_begin(void)
 	DDRB |= (1 << SPI_SCK_PIN);		// output
 	DDRB |= (1 << SPI_SS_PIN);		// output
 
-	PORTB |= (1 << SPI_SS_PIN);
+	PORTB |= (1 << SPI_SS_PIN);		// set SS to high
 
 	SPCR = _BV(SPE) | _BV(MSTR) | _BV(SPR1) | _BV(SPR0);
 }
@@ -47,7 +47,7 @@ void avr_spi_begin(void)
 /**
  * @ingroup SPI
  *
- * Disable the SPI pins.
+ * End SPI operations.
  */
 void avr_spi_end(void) {
 	SPCR = 0;
@@ -55,17 +55,17 @@ void avr_spi_end(void) {
 
 /**
  * @ingroup SPI
- *
- * @param s
- * @param len
+ * Transfers any number of bytes to the currently selected SPI slave.
+ * @param s Buffer of bytes to send.
+ * @param len Number of bytes in the buffer, and the number of bytes to send.
  */
-void avr_spi_writenb(const char *s, uint8_t len)
+void avr_spi_writenb(const char *buf, uint8_t len)
 {
 	PORTB &= ~(1 << SPI_SS_PIN);
 
 	while (len--)
 	{
-		SPDR = *s++;
+		SPDR = *buf++;
 		while (!(SPSR & _BV(SPIF)))
 			;
 		_delay_us(10); //TODO _delay_us
@@ -75,23 +75,60 @@ void avr_spi_writenb(const char *s, uint8_t len)
 
 /**
  * @ingroup SPI
- *
- * @param s
- * @param len
+ * Transfers any number of bytes to and from the currently selected SPI slave.
+ * The returned data from the slave replaces the transmitted data in the buffer.
+ * @param buf Buffer of bytes to send. Received bytes will replace the contents.
+ * @param len Number of bytes in the buffer, and the number of bytes to send/received.
  */
-void avr_spi_transfern(char *s, uint8_t len)
+void avr_spi_transfern(char *buf, uint8_t len)
 {
 	PORTB &= ~(1 << SPI_SS_PIN);
 
 	while (len--)
 	{
-		SPDR = *s;
+		SPDR = *buf;
 		while (!(SPSR & _BV(SPIF)))
 			;
-		*s = SPDR;
+		*buf = SPDR;
 		_delay_us(10); //TODO _delay_us
-		s++;
+		buf++;
 	}
 
 	PORTB |= (1 << SPI_SS_PIN);
+}
+
+/**
+ * @ingroup SPI
+ * Sets the SPI bit order.
+ * @param order The desired bit order, one of AVR_SPI_BIT_ORDER_*,
+ * see \ref avrSPIBitOrder
+ */
+void avr_spi_setBitOrder(uint8_t order)
+{
+	SPCR |= (order << DORD);
+}
+
+/**
+ * @ingroup SPI
+ * Sets the SPI clock divider and therefore the SPI clock speed.
+ * @param divider The desired SPI clock divider, one of AVR_SPI_CLOCK_DIVIDER_*,
+ * see \ref avrSPIClockDivider
+ */
+void avr_spi_setClockDivider(uint8_t divider)
+{
+	SPCR |= (((divider & 0x02) == 2) << SPR1);
+	SPCR |= ((divider & 0x01) << SPR0);
+	SPSR = (((divider & 0x04) == 4) << SPI2X);
+}
+
+/**
+ * @ingroup SPI
+ * Sets the SPI data mode. Sets the clock polarity and phase/
+ * @param mode The desired data mode, one of AVR_SPI_MODE*,
+ * see \ref avrSPIMode
+ */
+void avr_spi_setDataMode(uint8_t mode)
+{
+	SPCR |= (((mode & 0x02) == 2) << CPOL);
+	SPCR |= ((mode & 0x01) << CPHA);
 }
