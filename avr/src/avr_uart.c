@@ -25,7 +25,7 @@
 #include <avr/io.h>
 
 #undef BAUD
-#define BAUD 38400
+#define BAUD 38400				///<
 #include <util/setbaud.h>
 
 /**

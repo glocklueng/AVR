@@ -7,14 +7,14 @@
 /**
  * @defgroup I2C i2c
  * @ingroup Firmware
- * @brief TODO
+ * @brief TODO Polling ...
  *
  */
 
 /**
  * @defgroup SPI spi
  * @ingroup Firmware
- * @brief TODO
+ * @brief TODO Polling ...
  *
  */
 
@@ -22,6 +22,6 @@
 /**
  * @defgroup UART UART
  * @ingroup Firmware
- * @brief TODO
+ * @brief TODO Polling ...
  *
  */
