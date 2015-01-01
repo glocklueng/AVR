@@ -24,7 +24,6 @@
  */
 
 #include <stdlib.h>
-#include <avr/interrupt.h>
 #include <util/twi.h>
 #include "avr_i2c.h"
 
@@ -37,6 +36,7 @@
 static uint8_t slave_address;	///<
 
 /**
+ * @ingroup I2C
  *
  * @param address
  * @return
@@ -74,6 +74,7 @@ static uint8_t i2c_start(uint8_t address)
 }
 
 /**
+ * @ingroup I2C
  *
  * @param data
  * @return
@@ -97,6 +98,7 @@ static uint8_t i2c_write(uint8_t data)
 }
 
 /**
+ * @ingroup I2C
  *
  * @return
  */
@@ -113,6 +115,7 @@ static uint8_t i2c_read_ack(void)
 }
 
 /**
+ * @ingroup I2C
  *
  * @return
  */
@@ -131,6 +134,7 @@ static uint8_t i2c_read_nack(void)
 #endif
 
 /**
+ * @ingroup I2C
  *
  */
 static void i2c_stop(void)
