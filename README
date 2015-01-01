@@ -2,5 +2,14 @@ AVR
 ===
 
 Libraries for AVR Atmel
+-----------------------
 
-See also https://github.com/vanvught/OpenDMX/tree/master/bob
+\avr
+\bob-avr
+
+Test programs
+-------------
+
+\avr-tester-libbob
+\bw_i2cdetect-libavr
+
