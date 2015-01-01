@@ -2,7 +2,7 @@
  * @file avr_i2c.c
  *
  */
-/* Copyright (C) 2014 by Arjan van Vught <pm @ http://www.raspberrypi.org/forum/>
+/* Copyright (C) 2015 by Arjan van Vught <pm @ http://www.raspberrypi.org/forum/>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -59,7 +59,7 @@ void avr_i2c_end(void)
  */
 void avr_i2c_setSlaveAddress(const uint8_t addr)
 {
-	slave_address = addr;
+	slave_address = addr << 1;
 }
 
 /**

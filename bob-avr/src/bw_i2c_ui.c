@@ -2,7 +2,7 @@
  * @file bw_i2c_ui.c
  *
  */
-/* Copyright (C) 2014 by Arjan van Vught <pm @ http://www.raspberrypi.org/forum/>
+/* Copyright (C) 2015 by Arjan van Vught <pm @ http://www.raspberrypi.org/forum/>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -42,10 +42,9 @@ static char i2c_ui_slave_address = BW_UI_DEFAULT_SLAVE_ADDRESS;
  *
  */
 inline static void ui_i2c_setup(void) {
-#ifdef __AVR_ARCH__
-	FUNC_PREFIX(i2c_setSlaveAddress(i2c_ui_slave_address ));
-#else
 	FUNC_PREFIX(i2c_setSlaveAddress(i2c_ui_slave_address >> 1));
+#ifdef __AVR_ARCH__
+#else
 	bcm2835_i2c_setClockDivider(BCM2835_I2C_CLOCK_DIVIDER_2500);
 #endif
 }
