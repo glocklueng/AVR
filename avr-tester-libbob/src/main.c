@@ -25,6 +25,7 @@
 
 #include <util/delay.h>
 #include "uart.h"
+#include "bw_spi.h"
 #include "bw_spi_lcd.h"
 #include "bw_i2c.h"
 #include "bw_i2c_dio.h"
@@ -43,8 +44,8 @@ int main(void)
 	printf("bw_spi_lcd_start\n");
 	bw_spi_lcd_start(&device_info);
 
-//	printf("bw_spi_read_id\n");
-//	bw_spi_read_id(&device_info);
+	printf("bw_spi_read_id\n");
+	bw_spi_read_id(&device_info);
 
 	printf("bw_spi_lcd_reinit\n");
 	bw_spi_lcd_reinit(&device_info);
