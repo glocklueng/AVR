@@ -24,7 +24,7 @@
  */
 
 #include <util/delay.h>
-#include "uart.h"
+#include "uart_stream.h"
 #include "bw_spi.h"
 #include "bw_spi_lcd.h"
 #include "bw_i2c.h"
