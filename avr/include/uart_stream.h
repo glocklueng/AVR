@@ -1,8 +1,8 @@
 /**
- * @file uart.h
+ * @file uart_stream.h
  *
  */
-/* Copyright (C) 2014 by Arjan van Vught <pm @ http://www.raspberrypi.org/forum/>
+/* Copyright (C) 2015 by Arjan van Vught <pm @ http://www.raspberrypi.org/forum/>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,8 +23,8 @@
  * THE SOFTWARE.
  */
 
-#ifndef UART_H_
-#define UART_H_
+#ifndef UART_STREAM_H_
+#define UART_STREAM_H_
 
 #include <stdio.h>
 #include "avr_uart.h"
@@ -32,9 +32,8 @@
 extern int uart_putchar(char c, FILE *stream);
 extern int uart_getchar(FILE *stream);
 
-FILE uart_output = FDEV_SETUP_STREAM(uart_putchar, NULL, _FDEV_SETUP_WRITE);
-FILE uart_input = FDEV_SETUP_STREAM(NULL, uart_getchar, _FDEV_SETUP_READ);
+FILE uart_stream = FDEV_SETUP_STREAM(uart_putchar, uart_getchar, _FDEV_SETUP_RW);
 
-#define UART_BEGIN() {avr_uart_begin();stdout = &uart_output;stdin = &uart_input;}
+#define UART_BEGIN() {avr_uart_begin();stdout = stdin = &uart_stream;}
 
-#endif /* UART_H_ */
+#endif /* UART_STREAM_H_ */

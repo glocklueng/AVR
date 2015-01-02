@@ -1,8 +1,8 @@
 /**
- * @file uart.c
+ * @file uart_steam.c
  *
  */
-/* Copyright (C) 2014 by Arjan van Vught <pm @ http://www.raspberrypi.org/forum/>
+/* Copyright (C) 2015 by Arjan van Vught <pm @ http://www.raspberrypi.org/forum/>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,6 +34,10 @@
  */
 int uart_getchar(FILE *stream) {
     loop_until_bit_is_set(UCSR0A, RXC0);
+    if (UCSR0A & _BV(FE0))
+    	return _FDEV_EOF;
+    if (UCSR0A & _BV(DOR0))
+    	return _FDEV_ERR;
     return UDR0;
 }
 
