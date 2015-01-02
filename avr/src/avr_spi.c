@@ -34,12 +34,14 @@
  */
 void avr_spi_begin(void)
 {
-	DDRB |= (1 << SPI_MOSI_PIN); 	// output
-	DDRB &= ~(1 << SPI_MISO_PIN);	// input
-	DDRB |= (1 << SPI_SCK_PIN);		// output
-	DDRB |= (1 << SPI_SS_PIN);		// output
+	uint8_t value = DDRB;
+	value |= _BV(SPI_MOSI_PIN); // output
+	value &= ~_BV(SPI_MISO_PIN);// input
+	value |= _BV(SPI_SCK_PIN);	// output
+	value |= _BV(SPI_SS_PIN);	// output
+	DDRB = value;
 
-	PORTB |= (1 << SPI_SS_PIN);		// set SS to high
+	PORTB |= _BV(SPI_SS_PIN);	// set SS to high
 
 	SPCR = _BV(SPE) | _BV(MSTR) | _BV(SPR1) | _BV(SPR0);
 }
@@ -61,16 +63,16 @@ void avr_spi_end(void) {
  */
 void avr_spi_writenb(const char *buf, uint8_t len)
 {
-	PORTB &= ~(1 << SPI_SS_PIN);
+	PORTB &= ~_BV(SPI_SS_PIN);
 
 	while (len--)
 	{
 		SPDR = *buf++;
-		while (!(SPSR & _BV(SPIF)))
-			;
+		loop_until_bit_is_set(SPSR,SPIF);
 		_delay_us(10); //TODO _delay_us
 	}
-	PORTB |= (1 << SPI_SS_PIN);
+
+	PORTB |= _BV(SPI_SS_PIN);
 }
 
 /**
@@ -82,19 +84,18 @@ void avr_spi_writenb(const char *buf, uint8_t len)
  */
 void avr_spi_transfern(char *buf, uint8_t len)
 {
-	PORTB &= ~(1 << SPI_SS_PIN);
+	PORTB &= ~_BV(SPI_SS_PIN);
 
 	while (len--)
 	{
 		SPDR = *buf;
-		while (!(SPSR & _BV(SPIF)))
-			;
+		loop_until_bit_is_set(SPSR,SPIF);
 		*buf = SPDR;
-		_delay_us(10); //TODO _delay_us
 		buf++;
+		_delay_us(10); //TODO _delay_us
 	}
 
-	PORTB |= (1 << SPI_SS_PIN);
+	PORTB |= _BV(SPI_SS_PIN);
 }
 
 /**
@@ -105,7 +106,7 @@ void avr_spi_transfern(char *buf, uint8_t len)
  */
 void avr_spi_setBitOrder(uint8_t order)
 {
-	SPCR |= (order << DORD);
+	SPCR |= ((order & 0x01) << DORD);
 }
 
 /**
@@ -129,6 +130,10 @@ void avr_spi_setClockDivider(uint8_t divider)
  */
 void avr_spi_setDataMode(uint8_t mode)
 {
+#if 0
 	SPCR |= (((mode & 0x02) == 2) << CPOL);
 	SPCR |= ((mode & 0x01) << CPHA);
+#else
+	SPCR |= ((mode & 0x03) << CPHA);
+#endif
 }
