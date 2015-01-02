@@ -43,8 +43,17 @@
 /**
  * @defgroup UART UART
  * @ingroup Firmware
- * @brief TODO Polling ...
+ * @brief Polled UART
  *
+ * The application is continuously checking the UDRE bit in the UART Status Register to
+ * control when the UART has finished sending a byte. When receiving data,
+ * the application is continuously checking the RXC bit in the UART Status Register to
+ * control when the UART has completed receiving a byte.
+ *
+ * <br>
+ * <b>AVR306: Using the AVR UART in C<b>
+ * <br>
+ * http://www.atmel.com/Images/doc1451.pdf
  */
 
 /**
