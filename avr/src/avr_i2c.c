@@ -27,19 +27,27 @@
 #include <util/twi.h>
 #include "avr_i2c.h"
 
-#define I2C_READ	0x01		///<
-#define I2C_WRITE	0x00		///<
+/// In 7-bit addressing procedure, the slave address is transferred in the first byte after the Start condition.
+/// The first seven bits of the byte comprise the slave address.
+/// The eighth bit is the read/write flag where 0 indicates a write and 1 indicates a read.
+/// \ref I2C_READ is used in \ref avr_i2c_read.
+/// \ref I2C_WRITE is used in \ref avr_i2c_write.
+typedef enum
+{
+	I2C_READ = 0x01,	///< R/W Bit Read
+	I2C_WRITE = 0x00	///< R/W Bit Write
+} avrI2CReadWriteFlag;
 
-#define F_SCL		100000UL	///< SCL frequency
-#define PRESCALER 	1
+#define F_SCL		400000UL	///< SCL frequency
+#define PRESCALER 	1			///< 4^TWPS, TWPS is located in TWISR which is the same register as the TWI Status bits. TWPS should therefore always be set to 0 to simplify the handling of the TWI Status bits.
 
-static uint8_t slave_address;	///<
+static uint8_t slave_address;	///< Set with function \ref avr_i2c_setSlaveAddress
 
 /**
  * @ingroup I2C
  *
  * @param address
- * @return
+ * @return 0 on success, 1 in the event of a write error.
  */
 static uint8_t i2c_start(uint8_t address)
 {
@@ -48,22 +56,18 @@ static uint8_t i2c_start(uint8_t address)
 	// transmit START condition
 	TWCR = (1 << TWINT) | (1 << TWSTA) | (1 << TWEN);
 	// wait for end of transmission
-	while (!(TWCR & (1 << TWINT)))
-		;
+	loop_until_bit_is_set(TWCR, TWINT);
 
 	// check if the start condition was successfully transmitted
 	if ((TWSR & 0xF8) != TW_START)
-	{
 		return 1;
-	}
 
 	// load slave address into data register
 	TWDR = address;
 	// start transmission of address
 	TWCR = (1 << TWINT) | (1 << TWEN);
 	// wait for end of transmission
-	while (!(TWCR & (1 << TWINT)))
-		;
+	loop_until_bit_is_set(TWCR, TWINT);
 
 	// check if the device has acknowledged the READ / WRITE mode
 	uint8_t twst = TW_STATUS & 0xF8;
@@ -77,7 +81,7 @@ static uint8_t i2c_start(uint8_t address)
  * @ingroup I2C
  *
  * @param data
- * @return
+ * @return 0 on success, 1 in the event of a write error.
  */
 static uint8_t i2c_write(uint8_t data)
 {
@@ -86,13 +90,10 @@ static uint8_t i2c_write(uint8_t data)
 	// start transmission of data
 	TWCR = (1 << TWINT) | (1 << TWEN);
 	// wait for end of transmission
-	while (!(TWCR & (1 << TWINT)))
-		;
+	loop_until_bit_is_set(TWCR, TWINT);
 
 	if ((TWSR & 0xF8) != TW_MT_DATA_ACK)
-	{
 		return 1;
-	}
 
 	return 0;
 }
@@ -104,12 +105,10 @@ static uint8_t i2c_write(uint8_t data)
  */
 static uint8_t i2c_read_ack(void)
 {
-
 	// start TWI module and acknowledge data after reception
 	TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWEA);
 	// wait for end of transmission
-	while (!(TWCR & (1 << TWINT)))
-		;
+	loop_until_bit_is_set(TWCR, TWINT);
 	// return received data from TWDR
 	return TWDR ;
 }
@@ -122,12 +121,10 @@ static uint8_t i2c_read_ack(void)
 #if 0
 static uint8_t i2c_read_nack(void)
 {
-
 	// start receiving without acknowledging reception
 	TWCR = (1 << TWINT) | (1 << TWEN);
 	// wait for end of transmission
-	while (!(TWCR & (1 << TWINT)))
-		;
+	loop_until_bit_is_set(TWCR, TWINT);
 	// return received data from TWDR
 	return TWDR ;
 }
@@ -145,9 +142,9 @@ static void i2c_stop(void)
 
 /**
  * @ingroup I2C
- *
- * Pull up resistors are activated for TWI clock line / TWI data line
- *
+ * Start I2C operations.
+ * Pull up resistors are activated for TWI clock line / TWI data line.
+ * Baudrate is set with \ref F_SCL
  */
 void avr_i2c_begin(void)
 {
@@ -158,33 +155,35 @@ void avr_i2c_begin(void)
 
 /**
  * @ingroup I2C
- *
- * Disable I2C
+ * End I2C operations.
  */
 void avr_i2c_end(void)
 {
-	// TODO avr_i2c_end
+	TWCR = 0;
 }
 
 /**
  * @ingroup I2C
- *
- * @param addr
+ * Sets the I2C slave 7-bits address.
+ * @param addr The I2C slave address.
  */
 void avr_i2c_setSlaveAddress(const uint8_t addr)
 {
+	// The first seven bits of the byte comprise the slave address.
 	slave_address = addr << 1;
 }
 
 /**
  * @ingroup I2C
- *
- * @param buf
- * @param len
- * @return
+ * Transfers any number of bytes to the currently selected I2C slave
+ * (as previously set by \ref avr_i2c_setSlaveAddress).
+ * @param buf Buffer of bytes to send.
+ * @param len Number of bytes in the @p buf buffer, and the number of bytes to send.
+ * @return 0 on success, 1 in the event of a write error.
  */
 uint8_t avr_i2c_write(const char *buf, uint8_t len)
 {
+	// The eighth bit is the read/write flag where 0 indicates a write.
 	if (i2c_start(slave_address | I2C_WRITE))
 		return 1;
 
@@ -201,13 +200,15 @@ uint8_t avr_i2c_write(const char *buf, uint8_t len)
 
 /**
  * @ingroup I2C
- *
- * @param buf
- * @param len
- * @return
+ * Transfers any number of bytes from the currently selected I2C slave
+ * (as previously set by \ref avr_i2c_setSlaveAddress).
+ * @param buf Buffer of bytes to receive.
+ * @param len Number of bytes in the @p buf buffer, and the number of bytes to received.
+ * @return 0 on success, 1 in the event of a read error.
  */
 uint8_t avr_i2c_read(char *buf, uint8_t len)
 {
+	// The eighth bit is the read/write flag where 1 indicates a read.
 	if (i2c_start(slave_address | I2C_READ))
 		return 1;
 
