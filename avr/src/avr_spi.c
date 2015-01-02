@@ -2,7 +2,7 @@
  * @file avr_spi.c
  *
  */
-/* Copyright (C) 2015 by Arjan van Vught <pm @ http://www.raspberrypi.org/forum/>
+/* Copyright (C) 2015 by Arjan van Vught <pm @ http://forum.bitwizard.nl/>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -117,12 +117,7 @@ void avr_spi_setBitOrder(uint8_t order)
  */
 void avr_spi_setClockDivider(uint8_t divider)
 {
-#if 0
-	SPCR |= (((divider & 0x02) == 2) << SPR1);
-	SPCR |= ((divider & 0x01) << SPR0);
-#else
 	SPCR |= ((divider & 0x03) << SPR0);
-#endif
 	SPSR = (((divider & 0x04) == 4) << SPI2X);
 }
 
@@ -134,10 +129,5 @@ void avr_spi_setClockDivider(uint8_t divider)
  */
 void avr_spi_setDataMode(uint8_t mode)
 {
-#if 0
-	SPCR |= (((mode & 0x02) == 2) << CPOL);
-	SPCR |= ((mode & 0x01) << CPHA);
-#else
 	SPCR |= ((mode & 0x03) << CPHA);
-#endif
 }

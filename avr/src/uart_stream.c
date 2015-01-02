@@ -2,7 +2,7 @@
  * @file uart_steam.c
  *
  */
-/* Copyright (C) 2015 by Arjan van Vught <pm @ http://www.raspberrypi.org/forum/>
+/* Copyright (C) 2015 by Arjan van Vught <pm @ http://forum.bitwizard.nl/>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,7 +27,7 @@
 #include <avr/io.h>
 
 /**
- * @ingroup UART
+ * @ingroup UART-STREAM
  *
  * @param stream
  * @return
@@ -42,7 +42,7 @@ int uart_getchar(FILE *stream) {
 }
 
 /**
- * @ingroup UART
+ * @ingroup UART-STREAM
  *
  * @param c
  * @param stream
