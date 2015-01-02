@@ -33,7 +33,10 @@ extern int uart_putchar(char c, FILE *stream);
 extern int uart_getchar(FILE *stream);
 
 FILE uart_stream = FDEV_SETUP_STREAM(uart_putchar, uart_getchar, _FDEV_SETUP_RW);
+///< FDEV_SETUP_STREAM macro can be used to setup a buffer which is valid for stdio operations.
 
 #define UART_BEGIN() {avr_uart_begin();stdout = stdin = &uart_stream;}
+///< Init the UART and redirect both STDIN and STDOUT to UART.
+///< This enables us to use AVR Libc provided functions to read and write to serial port.
 
 #endif /* UART_STREAM_H_ */

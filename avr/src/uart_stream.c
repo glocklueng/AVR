@@ -1,5 +1,5 @@
 /**
- * @file uart_steam.c
+ * @file uart_stream.c
  *
  */
 /* Copyright (C) 2015 by Arjan van Vught <pm @ http://forum.bitwizard.nl/>
@@ -28,9 +28,10 @@
 
 /**
  * @ingroup UART-STREAM
- *
- * @param stream
- * @return
+ * Get character from stream.
+ * @param stream Pointer to a FILE object that identifies an input stream.
+ * @return On success, the character read as an unsigned char cast to an @p int
+ *  or _FDEV_EOF on end of file or _FDEV_ERR.
  */
 int uart_getchar(FILE *stream) {
     loop_until_bit_is_set(UCSR0A, RXC0);
@@ -43,10 +44,10 @@ int uart_getchar(FILE *stream) {
 
 /**
  * @ingroup UART-STREAM
- *
- * @param c
- * @param stream
- * @return
+ * Writes a character to the stream.
+ * @param c The character to be written.
+ * @param stream Pointer to a FILE object that identifies an input stream.
+ * @return Always 0
  */
 int uart_putchar(char c, FILE *stream) {
 

@@ -59,6 +59,8 @@
 /**
  * @defgroup UART-STREAM UART stream
  * @ingroup UART
- * @brief TODO
+ * @brief Redirecting STDIN and STDOUT to UART
+ *
+ * Based on http://www.appelsiini.net/2011/simple-usart-with-avr-libc
  *
  */
