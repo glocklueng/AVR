@@ -117,8 +117,12 @@ void avr_spi_setBitOrder(uint8_t order)
  */
 void avr_spi_setClockDivider(uint8_t divider)
 {
+#if 0
 	SPCR |= (((divider & 0x02) == 2) << SPR1);
 	SPCR |= ((divider & 0x01) << SPR0);
+#else
+	SPCR |= ((divider & 0x03) << SPR0);
+#endif
 	SPSR = (((divider & 0x04) == 4) << SPI2X);
 }
 
