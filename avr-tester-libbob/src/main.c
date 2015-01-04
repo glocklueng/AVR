@@ -53,11 +53,13 @@ int main(void)
 	uint8_t backlight;
 	printf("bw_spi_lcd_get_backlight := ");
 	bw_spi_lcd_get_backlight(&device_info, &backlight);
+
 	printf("%d\n", backlight);
 
 	uint8_t contrast;
 	printf("bw_spi_lcd_get_contrast := ");
 	bw_spi_lcd_get_contrast(&device_info,&contrast);
+
 	printf("%d\n", contrast);
 
 	printf("bw_spi_lcd_cls\n");
@@ -65,6 +67,7 @@ int main(void)
 
 	printf("bw_spi_lcd_text_line_1\n");
 	bw_spi_lcd_text_line_1(&device_info, "AVR Atmel", 9);
+
 	printf("bw_spi_lcd_text_line_2\n");
 	bw_spi_lcd_text_line_2(&device_info, "Arduino Uno", 11);
 
@@ -88,8 +91,10 @@ int main(void)
 	struct rtc_time tm_rtc;
 	printf("mcp7941x_start\n");
 	mcp7941x_start(0x00);
+
 	printf("mcp7941x_get_date_time\n");
 	mcp7941x_get_date_time(&tm_rtc);
+
 	printf("%.2d:%.2d:%.2d %.2d-%.2d-%.2d\n", tm_rtc.tm_hour, tm_rtc.tm_min, tm_rtc.tm_sec, tm_rtc.tm_mday, tm_rtc.tm_mon, tm_rtc.tm_year);
 
 	device_info.slave_address = BW_DIO_DEFAULT_SLAVE_ADDRESS;
@@ -118,3 +123,4 @@ int main(void)
 		_delay_ms(500);
 	}
 }
+

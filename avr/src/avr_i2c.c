@@ -38,7 +38,7 @@ typedef enum
 	I2C_WRITE = 0x00	///< R/W Bit Write
 } avrI2CReadWriteFlag;
 
-#define F_SCL		400000UL	///< SCL frequency
+#define F_SCL		100000UL	///< SCL frequency
 #define PRESCALER 	1			///< 4^TWPS, TWPS is located in TWISR which is the same register as the TWI Status bits. TWPS should therefore always be set to 0 to simplify the handling of the TWI Status bits.
 
 static uint8_t slave_address;	///< Set with function \ref avr_i2c_setSlaveAddress
